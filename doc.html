@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação do Projeto: Firewall CSV Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1, h2, h3 {
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-top: 40px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin-top: 30px;
+        }
+
+        p {
+            margin-bottom: 20px;
+        }
+
+        ul {
+            margin-bottom: 20px;
+        }
+
+        code {
+            background-color: #e4e4e4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        pre {
+            background-color: #e4e4e4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        #index ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #index ul li {
+            margin-bottom: 10px;
+        }
+
+        #index ul li a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        #index ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Documentação do Projeto: Firewall CSV Analyzer</h1>
+
+    <h2>Índice</h2>
+    <div id="index">
+        <ul>
+            <li><a href="#visao-geral">1. Visão Geral</a></li>
+            <li><a href="#pre-requisitos">2. Pré-requisitos</a></li>
+            <li><a href="#instalacao-configuracao">3. Instalação e Configuração</a></li>
+            <li><a href="#estrutura-arquivos">4. Estrutura de Arquivos</a></li>
+            <li><a href="#descricao-funcionalidades">5. Descrição das Funcionalidades</a></li>
+            <li><a href="#instrucoes-uso">6. Instruções de Uso</a></li>
+            <li><a href="#customizacao">7. Customização</a></li>
+            <li><a href="#tecnologias-utilizadas">8. Tecnologias Utilizadas</a></li>
+            
+            
+        </ul>
+    </div>
+
+    <h2 id="visao-geral">1. Visão Geral</h2>
+    <p>O <strong>Firewall CSV Analyzer</strong> é uma ferramenta baseada em web para analisar arquivos CSV contendo informações de tráfego de rede. Ele categoriza os registros em <strong>Permissões</strong> (Allowlist), <strong>Sinalizações</strong> (Watchlist) e<strong> Bloqueios</strong> (Blocklist) com base em regras definidas, exibindo os resultados em um layout de dashboard interativo. A aplicação também permite que os usuários acompanhem o progresso da análise em tempo real através de uma barra de progresso.</p>
+
+    <h2 id="pre-requisitos">2. Pré-requisitos</h2>
+    <p>Para rodar este projeto localmente, você precisará das seguintes ferramentas:</p>
+    <ul>
+        <li><strong>Node.js</strong> (opcional, para usar <code>live-server</code> ou outro servidor local)</li>
+        <li><strong>Python</strong> (opcional, para usar <code>SimpleHTTPServer</code>)</li>
+    </ul>
+    <p><strong>Navegadores compatíveis:</strong></p>
+    <ul>
+        <li>Google Chrome</li>
+        <li>Mozilla Firefox</li>
+        <li>Microsoft Edge</li>
+    </ul>
+
+    <h2 id="instalacao-configuracao">3. Instalação e Configuração</h2>
+    <p><strong>Passos para executar o projeto localmente:</strong></p>
+    <ol>
+        <li><strong>Clone o repositório:</strong></li>
+        <pre><code>git clone https://github.com/seu-usuario/firewall-csv-analyzer.git
+cd firewall-csv-analyzer</code></pre>
+
+        <li><strong>Executar o projeto em um servidor local:</strong></li>
+        <ul>
+            <li><strong>Opção 1: Usando <code>live-server</code> via Node.js</strong></li>
+            <pre><code>npm install -g live-server
+live-server</code></pre>
+
+            <li><strong>Opção 2: Usando Python</strong></li>
+            <p>Para Python 3.x:</p>
+            <pre><code>python -m http.server 8000</code></pre>
+
+            <p>Para Python 2.x:</p>
+            <pre><code>python -m SimpleHTTPServer 8000</code></pre>
+        </ul>
+
+        <li><strong>Acesse o projeto no navegador:</strong></li>
+        <p>Vá para <code>http://localhost:8000</code> ou <code>http://127.0.0.1:8000</code>.</p>
+    </ol>
+
+    <h2 id="estrutura-arquivos">4. Estrutura de Arquivos</h2>
+    <pre><code>firewall-csv-analyzer/
+│
+├── css/
+│   └── style.css           # Arquivo CSS personalizado
+│
+├── src/
+│   ├── firewall.js         # Lógica principal do aplicativo
+│   └── rules.js            # Regras de análise e processamento de CSV
+│
+├── asn-blocklist.json      # Arquivo JSON com a lista de ASNs suspeitos
+├── index.html              # Página principal do projeto
+└── README.md               # Documentação do projeto</code></pre>
+
+    <h2 id="descricao-funcionalidades">5. Descrição das Funcionalidades</h2>
+    <ul>
+        <li><strong>Seleção de Arquivo CSV:</strong> O usuário pode selecionar um arquivo CSV de tráfego de rede para análise.</li>
+        <li><strong>Análise de Dados:</strong> O arquivo CSV é processado para identificar registros que correspondem a padrões suspeitos definidos em <code>rules.js</code>.</li>
+        <li><strong>Exibição dos Resultados:</strong> Os registros são categorizados como <strong>Permissões</strong> (Allowlist) ou <strong>Bloqueios</strong> (Blocklist) e exibidos em tabelas separadas.</li>
+        <li><strong>Barra de Progresso:</strong> A barra de progresso mostra em tempo real o percentual de conclusão da análise do arquivo.</li>
+        <li><strong>Botões de Limpeza:</strong> Permitem que o usuário limpe as listas de permissões e bloqueios.</li>
+    </ul>
+
+    <h2 id="instrucoes-uso">6. Instruções de Uso</h2>
+    <ol>
+        <li><strong>Abrir o aplicativo em um navegador.</strong></li>
+        <li><strong>Clique no botão "Selecione o arquivo CSV"</strong> para escolher o arquivo de tráfego que deseja analisar.</li>
+        <li><strong>Acompanhe o progresso da análise</strong> através da barra de progresso.</li>
+        <li><strong>Visualize os resultados</strong> nas tabelas de <strong>Permissões</strong> e <strong>Bloqueios</strong>.</li>
+        <li><strong>Limpe as listas</strong> usando os botões "Limpar Permissões" e "Limpar Bloqueios" conforme necessário.</li>
+    </ol>
+
+    <h2 id="customizacao">7. Customização</h2>
+    <h3>Regras de Análise:</h3>
+    <p>As regras de análise podem ser customizadas no arquivo <code>rules.js</code>. Edite as variáveis e funções para ajustar as regras de acordo com suas necessidades.</p>
+    <pre><code>const suspiciousPorts = [21, 22, 80, 443, 3306];
+const suspiciousMethods = new Set(['POST', 'PUT', 'DELETE', 'CONNECT', 'PATCH']);;
+const suspiciousCountries = new Set(['CN', 'RU', 'KR', 'IR', 'IN']);
+const suspiciousDevices = new Set(['mobile', 'unknown']);
+const suspiciousUserAgents = new Set(['bot', 'spider', 'crawler', 'scanner']);
+const suspiciousReferers = new Set(['http://www.hernandez.com/', 'http://untrustedsite.com/']);
+const suspiciousURIKeywords = new Set(['login', 'admin', 'wp-login', 'exploit', 'shell']);</code></pre>
+
+    <h2 id="tecnologias-utilizadas">8. Tecnologias Utilizadas</h2>
+    <ul>
+        <li><strong>HTML5:</strong> Estrutura básica da aplicação.</li>
+        <li><strong>CSS3:</strong> Estilização e layout responsivo.</li>
+        <li><strong>JavaScript (ES6):</strong> Lógica de front-end e manipulação de DOM.</li>
+        <li><strong>JSON:</strong> Armazenamento de dados de ASN suspeitos.</li>
+    </ul>
+</div>
+
+</body>
+</html>

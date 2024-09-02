@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+    <title>Firewall CSV Analyzer</title>
+</head>
+<body>
+
+<div id="dashboard" class="container">
+    <div id="header" class="text-center my-4">
+        <h1>Firewall CSV Analyzer</h1>
+    </div>
+    
+    <div class="text-center mb-4">
+        <button id="selectFileButton" class="btn btn-success">Selecione o arquivo CSV</button>
+        <input type="file" id="fileInput" accept=".csv" class="d-none">
+    </div>
+
+    <div id="loading" class="text-center d-none">
+        <p>Processando...</p>
+    </div>
+
+    <div id="progressContainer" class="progress mb-4"> 
+        <div id="progressBar" class="progress-bar progress-bar-striped" role="progressbar" style="width: 0%;">0%</div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <h3>IPs Permitidos</h3>
+            <table id="allowlistTable" class="table table-bordered table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th>IP</th>
+                        <th>Método</th>
+                        <th>Protocolo</th>
+                        <th>URI</th>
+                        <th>Motivo de sinalização</th>
+                        <th>Criticidade</th>
+                    </tr>
+                </thead>
+                <tbody id="allowlistItems"></tbody>
+            </table>
+        </div>
+        <div class="col-md-4 mb-4">
+            <h3>IPs Sinalizados</h3>
+            <table id="watchlistTable" class="table table-bordered table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th>IP</th>
+                        <th>Método</th>
+                        <th>Protocolo</th>
+                        <th>URI</th>
+                        <th>Motivo de Sinalização</th>
+                        <th>Criticidade</th>
+                    </tr>
+                </thead>
+                <tbody id="watchlistItems"></tbody>
+            </table>
+        </div>
+        <div class="col-md-4 mb-4">
+            <h3>IPs Bloqueados</h3>
+            <table id="blocklistTable" class="table table-bordered table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th>IP</th>
+                        <th>Método</th>
+                        <th>Protocolo</th>
+                        <th>URI</th>
+                        <th>Motivo de Bloqueio</th>
+                        <th>Criticidade</th>
+                        <th>Tempo Restante</th>
+                    </tr>
+                </thead>
+                <tbody id="blocklistItems"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <button id="clearAllowlist" class="clear-buttons">Limpar Permissões</button>
+        <button id="clearWatchlist" class="clear-buttons">Limpar Sinalizados</button>
+        <button id="clearBlocklist" class="clear-buttons">Limpar Bloqueios</button>
+    </div>
+</div>
+
+<script type="module" src="./src/firewall.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
