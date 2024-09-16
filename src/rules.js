@@ -47,79 +47,50 @@ export async function processCSV(file, suspiciousAsns, blocklistItems, allowlist
         loading.style.display = 'block';
     }
 
-    const reader = file.stream().getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     let headers = [];
 
-    // Essa const será usada para mapear todos as tentativas de acesso de cada IP
     const ipAccessLogs = new Map(); 
 
-    //Abaixo é deifnido todos os critérios para classificar e totalizar os pontos de criticidade de cada um dos IPs
-
-    //Nessa const foram definidos as portas que são mais críticas e mais frequentes durante tentativas de invasão
     const suspiciousPorts = new Set([21, 22, 23, 25, 53, 80, 443, 8080, 3306, 3389, 5900]);
-    
-    //Abaixo são os métodos HTTP que possuem maior "capacidade" de explorar e modificar durante uma tentativa de ataque
     const suspiciousMethods = new Set(['POST', 'PUT', 'DELETE', 'CONNECT', 'PATCH']);
-    
-    //Códigos dos países que possuem maior histórico de ataques cibernéticos
     const suspiciousCountries = new Set(['CN', 'RU', 'KR', 'IR', 'IN']);
-    
-    //Durante ataques é comum que os dispositivos tenham as nomenclaturas como está na linha de comando abaixo
     const suspiciousDevices = new Set(['mobile', 'unknown']);
-
-    //Abaixo estão os principais user agents que são comumente associados a ataques
     const suspiciousUserAgents = new Set(['bot', 'spider', 'crawler', 'scanner']);
-
-    //Sites que foram identificados previamente com o uso de HTTP (além de HTTPS)
     const suspiciousReferers = new Set(['http://www.hernandez.com/', 'http://untrustedsite.com/']);
-
-    //Abaixo são palavras-chave que podem indicar tentativas de acesso a caminhos sensíveis na rede
     const suspiciousURIKeywords = new Set(['login', 'admin', 'wp-login', 'exploit', 'shell']);
 
-    //Com este buffer, os IPs que forem bloqueados serão armazenados temporariamente, assim como o tamanho do lote também é definido para atualizar o DOM em determinados intervalos.
-    const blocklistBuffer = []; 
+    const blocklistBuffer = [];
     const allowlistBuffer = [];
     const BATCH_SIZE = 100;
+    const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
 
-    //Aqui é inicializado a variável para contar o total de linhas que possuem no CSV e outra variável irá conta o número de linhas que foram processadas
-    let totalLines = 0; 
+    let totalLines = 0;
     let processedLines = 0;
 
-    //Abaixo todo conteúdo do CSV inserido é lido e também o total de linhas é calculado. Adicionei -1 por conta do cabeçalho.
     const textContent = await file.text();
     totalLines = textContent.split('\n').length - 1;
 
+    const reader = file.stream().getReader();
+    let done = false;
 
-    //Essa função é um segundo leitor, ele começa parando a leitura que foi feita anteriormente e "quebra" o CSV em partes para fazer sua leitura total novamente, essa função foi necessária por conta do tamanho do CSV de exemplo.
-    reader.releaseLock();
-    const newReader = file.stream().getReader();
+    async function processChunk({ done, value }) {
+        if (done) return;
 
-    while (true) { //Neste momento é inicializado um loop que será contínuo para a leitura do arquivo até o final
-        const { done, value } = await newReader.read(); //Uma parte do arquivo é lida e esta leitura é armazenada em "value", done indica se a leitura foi finalizada.
-        if (done) break; //Se a leitura terminou, o loop é quebrado neste momento
-
-        //A parte lida do arquivo é decodificada e adicionada ao buffer. O buffer então é dividido em linhas utilizando \n como delimitante. 
         buffer += decoder.decode(value, { stream: true });
         let lines = buffer.split('\n');
-        buffer = lines.pop(); //A última linha do buffer é removida para garantir seja processada uma linha incompleta.
+        buffer = lines.pop(); // Save the last partial line
 
-        //Essa função itera sobre cada linha completa no buffer. 
-        for (const line of lines) { 
-            if (!headers.length) { //Caso os cabeçalhos não forem definidos (primeira linha de dados)
-                headers = line.split(','); //Divide as linhas de cabeçalhos em colunas com a vírgula
-
-                //Então o processo continua já que na linha atual contém apenas cabeçalhos
+        for (const line of lines) {
+            if (!headers.length) {
+                headers = line.split(',');
                 continue;
             }
 
-            //Abaixo a função divide a linha em valores individuais, caso possua mais de um valor é uma linha válida. Por fim, um objeto entry é criado e ele será associado aos valores do cabeçalho
             const values = line.split(',');
             if (values.length > 1) {
                 const entry = createEntry(values, headers);
-
-                //Abaixo os IPs tem sua pontuação total de "suspeito" somadas e é definido qual o seu nível de criticidade, sendo adicionado a cada tabela correspondente dependendo de sua pontuação
                 const { points, reason } = checkSuspiciousEntry(entry, ipAccessLogs, suspiciousAsns, suspiciousCountries, suspiciousDevices, suspiciousReferers, suspiciousURIKeywords);
                 const criticidade = getCriticidadeLevel(points);
                 const listItem = createListItem(entry, reason, criticidade);
@@ -135,32 +106,33 @@ export async function processCSV(file, suspiciousAsns, blocklistItems, allowlist
                 }
             }
 
-            //Com a função é incrementado o número total de linhas processadas 
-
             processedLines++;
-            const progressPercent = (processedLines / totalLines) * 100; //A porcentagem do progresso é calculada com essa função e a barra de progresso no DOM é atualizada.
+            const progressPercent = (processedLines / totalLines) * 100;
             updateProgress(progressPercent.toFixed(2));
-            
-             // O DOM é atualizado se o buffer atingiu o tamanho do lote definido
+
             if (blocklistBuffer.length >= BATCH_SIZE || allowlistBuffer.length >= BATCH_SIZE) {
-                updateDOM(blocklistItems, allowlistItems, blocklistBuffer, allowlistBuffer); //As listas das tabelas são atualizadas no DOM
-                
-                //O buffer de bloqueados e permitidos é limpo com as funções abaixo
-                blocklistBuffer.length = 0; 
+                updateDOM(blocklistItems, allowlistItems, blocklistBuffer, allowlistBuffer);
+                blocklistBuffer.length = 0;
                 allowlistBuffer.length = 0;
-                await new Promise(resolve => setTimeout(resolve, 0)); //É uma função de aguardo antes que qualquer outra operação seja realizada
+                await new Promise(resolve => setTimeout(resolve, 0)); // Yield to the browser
             }
         }
     }
 
-    //Após todo o processamento o DOM é atualizado com as listas abaixo. Também adicionei um atraso na exibição da lista da blocklist, pois antes estava enfrentado problemas de desempenho no site com todas as listas carregando.
+    while (!done) {
+        const result = await reader.read();
+        await processChunk(result);
+    }
+
+    // Final update to DOM after processing all data
     updateDOM(blocklistItems, allowlistItems, blocklistBuffer, allowlistBuffer);
     debounceUpdateBlocklistDisplay(blocklistItems)();
 
     if (loading && loading.style) {
-        loading.style.display = 'none'; //O carregador visual do processamento é escondido quando o processo finaliza por completo
+        loading.style.display = 'none';
     }
 }
+
 
 //Nesta função um objeto de entrada é criado para mapear os valores dos cabeçalhos presentes no CSV de exemplo.
 function createEntry(values, headers) {
